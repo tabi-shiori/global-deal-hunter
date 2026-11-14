@@ -1,0 +1,39 @@
+name: GLOBAL DEAL HUNTER - 2h Automated Intelligence Cron
+
+on:
+  schedule:
+    # Runs automatically every 2 hours, 24/7 on GitHub Cloud
+    - cron: '0 */2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  hunt-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Space Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run 2-Hour Deal Discovery, Deduplication & URL Verification
+        env:
+          NOTIFY_WEBHOOK_URL: ${{ secrets.NOTIFY_WEBHOOK_URL }}
+        run: |
+          python3 scripts/collector.py --mode github_actions_2h_cron
+
+      - name: Commit Updated Intelligence Snapshot & Database
+        run: |
+          if [[ -n "$(git status --porcelain data/)" ]]; then
+            git config user.name "Global Deal Hunter Bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/deals.db data/dashboard_snapshot.json
+            git commit -m "chore(intel): 2h automated deal verification & snapshot update [skip ci]"
+            git push
+          fi

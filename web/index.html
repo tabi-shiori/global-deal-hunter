@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GLOBAL DEAL HUNTER｜全球羊毛情报中心</title>
+  <meta name="description" content="24小时全球优惠、AI订阅福利、Crypto空投积分、海外银行U卡返现、VPS免费云资源与数字服务限时活动自动化情报工作空间。" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-mark" aria-hidden="true">GDH</div>
+        <div class="brand-titles">
+          <h1>GLOBAL DEAL HUNTER｜全球羊毛情报中心</h1>
+          <p class="brand-subtitle" id="header-sync-meta">独立 AI 情报工作空间 · 自动发现 · 官方核验 · 去重归档</p>
+        </div>
+      </div>
+
+      <div class="command-actions">
+        <div class="daemon-pill" id="daemon-status-pill" title="后台守护进程每2小时执行一次增量采集与链接验活">
+          <span class="status-dot"></span>
+          <span id="countdown-readout">每2h巡检｜下次: --:--:--</span>
+        </div>
+        <button class="btn btn-primary" id="btn-run-scan" type="button">立即巡检验活</button>
+        <button class="btn" id="btn-open-add" type="button">+ 智能录入/验重</button>
+        <button class="btn" id="btn-sync-sheets" type="button">同步 Google 表格</button>
+        <a class="btn" id="btn-open-sheets" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">打开云端库</a>
+        <a class="btn" id="btn-export-csv" href="/api/export.csv">导出 CSV</a>
+        <button class="btn" id="btn-theme-toggle" type="button" aria-label="切换深浅色主题">深/浅色</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace-shell">
+    <section class="kpi-grid" aria-label="核心情报统计">
+      <div class="kpi-card">
+        <div class="kpi-label">有效优惠情报</div>
+        <div class="kpi-value" id="kpi-active">--</div>
+        <div class="kpi-meta" id="kpi-sources-meta">监控 20 个全球信源</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">A. 今日/近期最新</div>
+        <div class="kpi-value" id="kpi-today">--</div>
+        <div class="kpi-meta">近72h新发及重磅提醒</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">真正免费 / 学生全免</div>
+        <div class="kpi-value" id="kpi-free">--</div>
+        <div class="kpi-meta">已严格剔除隐性充值门槛</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">G. 即将截止预警</div>
+        <div class="kpi-value" id="kpi-expiring">--</div>
+        <div class="kpi-meta">含政策变更与限时窗口</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">待核实社区线索</div>
+        <div class="kpi-value" id="kpi-pending">--</div>
+        <div class="kpi-meta">未经官方坐实严禁混同</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">已核实参考总价值</div>
+        <div class="kpi-value" id="kpi-usd">--</div>
+        <div class="kpi-meta" id="kpi-archived-meta">已自动归档 -- 条过期活动</div>
+      </div>
+    </section>
+
+    <div class="main-columns">
+      <nav class="module-sidebar" aria-label="数据看板模块导航">
+        <div class="sidebar-section-title">核心数据看板（A–H）</div>
+        <button class="module-nav-btn active" id="nav-mod-A" data-mod="A" type="button">
+          <span><span class="module-code">A</span>今日最新优惠</span>
+          <span class="module-count" id="cnt-A">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-B" data-mod="B" type="button">
+          <span><span class="module-code">B</span>高价值优惠排行榜</span>
+          <span class="module-count" id="cnt-B">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-C" data-mod="C" type="button">
+          <span><span class="module-code">C</span>AI工具免费与折扣</span>
+          <span class="module-count" id="cnt-C">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-D" data-mod="D" type="button">
+          <span><span class="module-code">D</span>Crypto空投与积分</span>
+          <span class="module-count" id="cnt-D">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-E" data-mod="E" type="button">
+          <span><span class="module-code">E</span>海外银行与U卡优惠</span>
+          <span class="module-count" id="cnt-E">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-F" data-mod="F" type="button">
+          <span><span class="module-code">F</span>VPS及云服务专区</span>
+          <span class="module-count" id="cnt-F">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-G" data-mod="G" type="button">
+          <span><span class="module-code">G</span>即将截止的活动</span>
+          <span class="module-count" id="cnt-G">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-H" data-mod="H" type="button">
+          <span><span class="module-code">H</span>已结束活动档案</span>
+          <span class="module-count" id="cnt-H">0</span>
+        </button>
+
+        <div class="sidebar-section-title" style="margin-top:10px;">扩展视图与工作流</div>
+        <button class="module-nav-btn" id="nav-mod-SW" data-mod="SW" type="button">
+          <span><span class="module-code">+</span>软件数字与全球精选</span>
+          <span class="module-count" id="cnt-SW">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-ALL" data-mod="ALL" type="button">
+          <span><span class="module-code">∑</span>全量有效情报库</span>
+          <span class="module-count" id="cnt-ALL">0</span>
+        </button>
+        <button class="module-nav-btn" id="nav-mod-OPS" data-mod="OPS" type="button">
+          <span><span class="module-code">⚙</span>采集工作流与信源监控</span>
+          <span class="module-count" id="cnt-OPS">20</span>
+        </button>
+      </nav>
+
+      <section class="content-panel">
+        <div class="module-banner">
+          <div class="banner-top">
+            <h2 id="current-module-title">A. 今日最新优惠</h2>
+            <span class="kpi-meta" id="current-module-count">共 0 条结果</span>
+          </div>
+          <p class="banner-desc" id="current-module-desc">近72小时新上线或今日新捕获的高价值全球活动</p>
+
+          <div class="filter-bar" id="deal-filter-bar">
+            <input
+              type="search"
+              id="filter-search"
+              class="search-input"
+              placeholder="搜索活动名称、平台（如 Gemini / AWS / Bybit / Schwab / eSIM）、国家或条件…"
+            />
+            <select id="filter-ptype" class="filter-select" aria-label="按参与门槛筛选">
+              <option value="ALL">全部参与门槛（严格区分性质）</option>
+              <option value="真正免费">真正免费（0成本免充值）</option>
+              <option value="学生/教育免费">学生/教育免费</option>
+              <option value="免费试用">免费试用（注意续费规则）</option>
+              <option value="折扣特惠">折扣特惠 / 买断特价</option>
+              <option value="需要消费">需要消费 / 首刷返现</option>
+              <option value="需要充值">需要充值 / 入金质押</option>
+              <option value="需要交易量">需要交易量</option>
+              <option value="需要邀请条件">需要邀请条件</option>
+            </select>
+            <select id="filter-verify" class="filter-select" aria-label="按核实状态筛选">
+              <option value="ALL">全部核实状态</option>
+              <option value="已核实">仅看「已核实」官方情报</option>
+              <option value="待核实">仅看「待核实」社区线索</option>
+            </select>
+            <select id="filter-sort" class="filter-select" aria-label="排序方式">
+              <option value="default">智能优先级排序（默认）</option>
+              <option value="score">按性价比评分排序 (0–100)</option>
+              <option value="usd">按绝对美元估值排序 (USD)</option>
+              <option value="deadline">按截止紧迫度排序</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="deals-container" class="deals-list"></div>
+        <div id="ops-container" style="display:none;"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 12-Field Full Deal Dossier Slide-Over Drawer -->
+  <div class="backdrop" id="detail-backdrop" role="dialog" aria-modal="true" aria-labelledby="drawer-deal-title">
+    <div class="drawer" id="detail-drawer">
+      <div class="drawer-header">
+        <div>
+          <div class="card-badges" id="drawer-badges"></div>
+          <h2 id="drawer-deal-title" style="margin:10px 0 0;font-size:18px;line-height:1.4;"></h2>
+        </div>
+        <button class="btn" id="btn-close-drawer" type="button">关闭 ✕</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+        <a class="btn btn-primary" id="drawer-official-btn" href="#" target="_blank" rel="noopener noreferrer">直达官方活动页 ↗</a>
+        <button class="btn" id="drawer-toggle-verify" type="button">切换核实状态</button>
+        <button class="btn" id="drawer-archive-btn" type="button">归档至已结束</button>
+      </div>
+      <div class="field-list" id="drawer-fields"></div>
+    </div>
+  </div>
+
+  <!-- Add / Deduplicate Deal Modal -->
+  <div class="backdrop modal-center" id="add-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 id="add-modal-title" style="margin:0;font-size:16px;">智能录入新优惠线索（自动去重·提取截止日·评估价值）</h3>
+        <button class="btn" id="btn-close-add" type="button">✕</button>
+      </div>
+      <form id="add-deal-form" class="form-grid">
+        <label>
+          活动名称 *
+          <input type="text" id="input-title" required placeholder="例如：Cloudflare Workers 限时赠送 $50 算力额度" />
+        </label>
+        <label>
+          官方活动链接 *（系统将自动规范化 URL 并拦截重复活动）
+          <input type="url" id="input-url" required placeholder="https://..." />
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <label>
+            所属类别（留空可自动识别）
+            <select id="input-category">
+              <option value="">AI 自动分类</option>
+              <option value="AI订阅优惠">AI订阅优惠</option>
+              <option value="Crypto">Crypto</option>
+              <option value="U卡">U卡</option>
+              <option value="海外银行">海外银行</option>
+              <option value="VPS及云服务">VPS及云服务</option>
+              <option value="软件与数字服务">软件与数字服务</option>
+              <option value="其他全球优惠">其他全球优惠</option>
+            </select>
+          </label>
+          <label>
+            核实状态
+            <select id="input-verify">
+              <option value="待核实">待核实（默认安全标注）</option>
+              <option value="已核实">已核实（已核对官网条款）</option>
+            </select>
+          </label>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <label>
+            实际价值说明（可选）
+            <input type="text" id="input-val-text" placeholder="例如：$50 额度（留空自动测算）" />
+          </label>
+          <label>
+            截止日期 YYYY-MM-DD（可选）
+            <input type="text" id="input-end-date" placeholder="留空将从描述自动提取或设为长期有效" />
+          </label>
+        </div>
+        <label>
+          优惠内容与参与条件摘录 *
+          <textarea id="input-summary" rows="3" required placeholder="粘贴官方公告摘要，系统将自动提取截止时间、地区限制、是否需要绑卡/入金/交易量及隐藏条款…"></textarea>
+        </label>
+        <label>
+          风险提示（可选）
+          <input type="text" id="input-risk" placeholder="例如：试用期结束后自动按 $20/月续费，需提前取消" />
+        </label>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
+          <button class="btn" id="btn-cancel-add" type="button">取消</button>
+          <button class="btn btn-primary" id="btn-submit-add" type="submit">执行验重并入库</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast-msg" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
