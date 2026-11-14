@@ -1,13 +1,24 @@
 (() => {
+  const isCloudHost =
+    location.hostname.endsWith(".github.io") ||
+    location.hostname.endsWith(".pages.dev") ||
+    location.hostname.endsWith(".vercel.app");
+
+  function computeCloudCountdownSeconds() {
+    const nowSec = Math.floor(Date.now() / 1000);
+    return 7200 - (nowSec % 7200);
+  }
+
   let state = {
     data: null,
+    isStaticMode: isCloudHost,
     activeModule: "A",
     search: "",
     pType: "ALL",
     verify: "ALL",
     sortBy: "default",
     selectedDeal: null,
-    secondsUntilNext: 7200,
+    secondsUntilNext: computeCloudCountdownSeconds(),
   };
 
   const esc = (str) =>
@@ -75,7 +86,9 @@
     document.getElementById("kpi-usd").textContent = `$${Number(k.total_verified_value_usd).toLocaleString()}`;
     document.getElementById("kpi-sources-meta").textContent = `实时监控 ${k.monitored_sources_count} 个全球信源`;
     document.getElementById("kpi-archived-meta").textContent = `已自动归档 ${k.archived_count} 条过期活动`;
-    document.getElementById("header-sync-meta").textContent = `最后全量核验：${state.data.generated_at} · 每2小时增量巡检已激活`;
+    document.getElementById("header-sync-meta").textContent = state.isStaticMode
+      ? `云端最新核验：${state.data.generated_at} · GitHub Cloud 每2小时全自动刷新`
+      : `最后全量核验：${state.data.generated_at} · 每2小时增量巡检已激活`;
 
     for (const key of ["A", "B", "C", "D", "E", "F", "G", "H"]) {
       const el = document.getElementById(`cnt-${key}`);
@@ -324,20 +337,95 @@
     document.getElementById("detail-backdrop").classList.add("open");
   }
 
+  function applyRuntimeModeUI(isStatic) {
+    const toggleIds = ["btn-open-add", "btn-sync-sheets", "drawer-toggle-verify", "drawer-archive-btn"];
+    toggleIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = isStatic ? "none" : "";
+    });
+    const ghBtn = document.getElementById("btn-gh-actions");
+    if (ghBtn) ghBtn.style.display = isStatic ? "inline-flex" : "none";
+    const scanBtn = document.getElementById("btn-run-scan");
+    if (scanBtn) scanBtn.textContent = isStatic ? "刷新云端情报" : "立即巡检验活";
+  }
+
+  function exportClientCsv() {
+    if (!state.data) return;
+    const items = [...(state.data.all_active || []), ...(state.data.modules?.H?.items || [])];
+    const headers = [
+      "ID", "活动名称", "所属类别", "门槛性质", "核实状态", "当前状态",
+      "优惠内容", "实际价值", "USD估值", "性价比评分",
+      "参与条件", "适用国家或地区", "开始及截止时间",
+      "参与步骤", "官方活动链接", "信息来源", "最后验证时间", "风险提示",
+    ];
+    const csvCell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const rows = [
+      headers.map(csvCell).join(","),
+      ...items.map((d) =>
+        [
+          d.id, d.title, d.category, d.participation_type,
+          d.verification_status, d.status, d.offer_summary,
+          d.actual_value_text, d.estimated_value_usd, d.value_score,
+          d.conditions, d.regions, d.time_window_text,
+          d.steps, d.official_url, d.source_info,
+          d.last_verified_at, d.risk_warning,
+        ].map(csvCell).join(",")
+      ),
+    ];
+    const blob = new Blob(["\ufeff" + rows.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "global_deal_hunter_export.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async function fetchDashboard() {
     try {
-      const resp = await fetch("/api/dashboard");
-      const json = await resp.json();
-      state.data = json;
-      if (json.scheduler) {
-        state.secondsUntilNext = json.scheduler.seconds_until_next;
+      if (!isCloudHost) {
+        try {
+          const apiResp = await fetch("./api/dashboard", { cache: "no-store" });
+          if (apiResp.ok) {
+            const json = await apiResp.json();
+            state.isStaticMode = false;
+            state.data = json;
+            if (json.scheduler) {
+              state.secondsUntilNext = json.scheduler.seconds_until_next;
+            }
+            applyRuntimeModeUI(false);
+            renderKPIs();
+            renderMainContent();
+            return;
+          }
+        } catch {
+          // Fall back to static cloud snapshot below
+        }
       }
+
+      const snapResp = await fetch(`./data/dashboard_snapshot.json?t=${Date.now()}`, { cache: "no-store" });
+      if (!snapResp.ok) throw new Error(`HTTP ${snapResp.status}`);
+      const json = await snapResp.json();
+      state.isStaticMode = true;
+      state.data = json;
+      state.secondsUntilNext = computeCloudCountdownSeconds();
+      applyRuntimeModeUI(true);
       renderKPIs();
       renderMainContent();
     } catch (err) {
-      showToast("加载情报库失败，请检查本地服务状态");
+      showToast("加载情报库失败，请稍后刷新重试");
     }
   }
+
+  document.getElementById("btn-export-csv").addEventListener("click", (e) => {
+    if (state.isStaticMode) {
+      e.preventDefault();
+      exportClientCsv();
+      showToast("已导出全量情报 CSV 文件");
+    }
+  });
 
   // Event Listeners
   document.querySelectorAll(".module-nav-btn").forEach((btn) => {
@@ -378,8 +466,8 @@
   });
 
   document.getElementById("drawer-toggle-verify").addEventListener("click", async () => {
-    if (!state.selectedDeal) return;
-    await fetch("/api/deals/action", {
+    if (!state.selectedDeal || state.isStaticMode) return;
+    await fetch("./api/deals/action", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: state.selectedDeal.id, action: "toggle_verify" }),
@@ -390,8 +478,8 @@
   });
 
   document.getElementById("drawer-archive-btn").addEventListener("click", async () => {
-    if (!state.selectedDeal) return;
-    await fetch("/api/deals/action", {
+    if (!state.selectedDeal || state.isStaticMode) return;
+    await fetch("./api/deals/action", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: state.selectedDeal.id, action: "archive" }),
@@ -403,11 +491,20 @@
 
   document.getElementById("btn-run-scan").addEventListener("click", async (e) => {
     const btn = e.currentTarget;
+    if (state.isStaticMode) {
+      btn.disabled = true;
+      btn.textContent = "拉取云端快照…";
+      await fetchDashboard();
+      btn.disabled = false;
+      btn.textContent = "刷新云端情报";
+      showToast(`已同步云端最新快照（${state.data?.generated_at || ""}）`);
+      return;
+    }
     btn.disabled = true;
     btn.textContent = "全网巡检中…";
     showToast("已启动 20 个全球信源扫描与官方链接验活…");
     try {
-      const resp = await fetch("/api/scan", { method: "POST" });
+      const resp = await fetch("./api/scan", { method: "POST" });
       const data = await resp.json();
       await fetchDashboard();
       showToast(data.result?.notes || "全网巡检已完成");

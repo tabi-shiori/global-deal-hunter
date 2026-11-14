@@ -794,10 +794,60 @@ body {
 }
 
 @media (max-width: 640px) {
+  .header-inner {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .brand-titles h1 {
+    font-size: 14.5px;
+  }
+  .brand-subtitle {
+    font-size: 11px;
+  }
+  .command-actions {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .command-actions > * {
+    flex-shrink: 0;
+  }
+  .workspace-shell {
+    padding: 12px 12px 36px;
+  }
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .kpi-card {
+    padding: 11px 12px;
+  }
+  .kpi-value {
+    font-size: 19px;
+  }
+  .module-sidebar {
+    -webkit-overflow-scrolling: touch;
+  }
+  .module-banner {
+    padding: 13px 14px;
+  }
+  .filter-select,
+  .search-input {
+    width: 100%;
+    flex: 1 1 100%;
   }
   .deals-list {
     grid-template-columns: 1fr;
+  }
+  .card-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .ops-card {
+    overflow-x: auto;
+  }
+  .drawer {
+    padding: 18px 16px 32px;
   }
 }

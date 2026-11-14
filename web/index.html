@@ -2,10 +2,14 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c1015" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="全球羊毛情报" />
   <title>GLOBAL DEAL HUNTER｜全球羊毛情报中心</title>
   <meta name="description" content="24小时全球优惠、AI订阅福利、Crypto空投积分、海外银行U卡返现、VPS免费云资源与数字服务限时活动自动化情报工作空间。" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="top-header">
@@ -19,15 +23,16 @@
       </div>
 
       <div class="command-actions">
-        <div class="daemon-pill" id="daemon-status-pill" title="后台守护进程每2小时执行一次增量采集与链接验活">
+        <div class="daemon-pill" id="daemon-status-pill" title="GitHub Actions 云端每2小时执行一次增量采集与链接验活">
           <span class="status-dot"></span>
           <span id="countdown-readout">每2h巡检｜下次: --:--:--</span>
         </div>
         <button class="btn btn-primary" id="btn-run-scan" type="button">立即巡检验活</button>
         <button class="btn" id="btn-open-add" type="button">+ 智能录入/验重</button>
         <button class="btn" id="btn-sync-sheets" type="button">同步 Google 表格</button>
+        <a class="btn" id="btn-gh-actions" href="https://github.com/tabi-shiori/global-deal-hunter/actions/workflows/deal-hunter-cron.yml" target="_blank" rel="noopener noreferrer" style="display:none;">云端巡检台 ↗</a>
         <a class="btn" id="btn-open-sheets" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">打开云端库</a>
-        <a class="btn" id="btn-export-csv" href="/api/export.csv">导出 CSV</a>
+        <a class="btn" id="btn-export-csv" href="./api/export.csv">导出 CSV</a>
         <button class="btn" id="btn-theme-toggle" type="button" aria-label="切换深浅色主题">深/浅色</button>
       </div>
     </div>
@@ -248,6 +253,6 @@
   </div>
 
   <div class="toast" id="toast-msg" role="status" aria-live="polite"></div>
-  <script src="/app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
